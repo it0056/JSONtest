@@ -26,9 +26,7 @@
             "location": "northeurope",
             "scale": null,
             "properties": {},
-            "dependsOn": [
-                "[variables('IotHubName')]"
-            ]
+            "dependsOn": []
         },
         {
             "type": "Microsoft.Devices/IotHubs",
