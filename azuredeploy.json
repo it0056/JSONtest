@@ -12,8 +12,10 @@
           }
         },
     "variables": {
-        "DataLakeStoreName": "[toLower(parameters('solutionNamePrefix')) + 'pdmdatalakestore001']",
-        "IotHubName": "[parameters('solutionNamePrefix') + '-PdM-IoTHub-001']"
+        "DataLakeStorePostfix": "pdmdatalakestore001",
+        "IotHubPostfix": "-PdM-IoTHub-001",
+        "DataLakeStoreName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeStorePostfix')]",
+        "IotHubName": "[concat(parameters('solutionNamePrefix'),variables('IotHubPostfix')]"
       },
     "resources": [
         {
