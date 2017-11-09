@@ -29,7 +29,7 @@
                 "description": "Customername is prefix for all resources."
             }
         },      
-        "iotHubSkuName": {
+        "iotHubskuName": {
             "type": "string",
             "allowedValues": [
                 "F1",
@@ -49,6 +49,7 @@
         "iotHubName":"[concat(parameters('SolutionNamePrefix'),variables('iotHubNamePostFix'))]",
         "iotHubapiVersion": "2016-02-03",
         "iotHubd2cConsumerGroupName1": "devicedata",
+        "iotHubd2cConsumerGroupName2": "timeseriesinsight",
         "iotHubc2dFeedbackMessagesLockDurationAsIso8601": "PT60S",
         "iotHubc2dFeedbackMessagesMaxDeliveryCount": 10,
         "iotHubc2dFeebackMessagesTTLAsIso8601": "PT1H",
@@ -58,15 +59,14 @@
         "iotHubd2cMessageRetentionInDaysPeriod": 1,
         "iotHubcapacityUnits": 1,
         "DataLakeAccountPostfix": "pdmdatalakestore001",
-        "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]",
-        "StreamAnalyticsJobName": ""
+        "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]"
         
     },
     "resources": [
         {
             "type": "Microsoft.Devices/IotHubs",
             "sku": {
-                "name": "[parameters('iotHubSkuName')]",
+                "name": "[parameters('iotHubskuName')]",
                 "capacity": "[variables('iotHubcapacityUnits')]"
             },
             "apiVersion": "2016-02-03",
@@ -102,6 +102,14 @@
 
         },
         {
+            "apiVersion": "2017-01-19",
+            "dependsOn": [
+          "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
+            ],
+            "name": "[concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName2'))]",
+            "type": "Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups"
+        },
+        {
             "type": "Microsoft.DataLakeStore/accounts",
             "name": "[variables('DataLakeAccountName')]",
             "location": "[parameters('DataLakeLocation')]",
@@ -111,7 +119,6 @@
                 "encryptionState": "Disabled"
             }
         }
-        
     ],
     "outputs": {
         "iotHubKeys": {
