@@ -4,14 +4,29 @@
     "parameters": {
         "siteLocation": {
             "type": "string",
-            "defaultValue": "West Europe"
+            "defaultValue": "West Europe",
+            "metadata": {
+                "description": "Azure Region."
+            }
+        },
+        "DataLakeLocation": {
+            "type": "string",
+            "allowedValues": [
+                "East US 2",
+                "Central US",
+                "North Europe"
+            ],
+            "defaultValue": "North Europe",
+            "metadata": {
+                "description": "The location in which to create the Data Lake Store account."
+            }
         },
         "SolutionNamePrefix": {
             "type": "string",
             "maxLength": 11,
-            "defaultValue": "klantnaam",
+            "defaultValue": "<KLANT>",
             "metadata": {
-                "description": "Klantnaam is prefix voor alle onderdelen."
+                "description": "Customername is prefix for all resources."
             }
         },      
         "iotHubskuName": {
@@ -42,7 +57,9 @@
         "iotHubc2dMessagesTTLAsIso8601": "PT1H",
         "iotHubd2cPartitionCount": 4,
         "iotHubd2cMessageRetentionInDaysPeriod": 1,
-        "iotHubcapacityUnits": 1
+        "iotHubcapacityUnits": 1,
+        "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]",
+        "DataLakeAccountPostfix": "pdmdatalakestore001"
     },
     "resources": [
         {
@@ -90,6 +107,16 @@
             ],
             "name": "[concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName2'))]",
             "type": "Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups"
+        },
+        {
+            "type": "Microsoft.DataLakeStore/accounts",
+            "name": "[variables('DataLakeAccountName')]",
+            "location": "[parameters('DataLakeLocation')]",
+            "apiVersion": "2016-11-01",
+            "properties": {
+                "newTier": "Consumption",
+                "encryptionState": "Disabled"
+            }
         }
     ],
     "outputs": {
