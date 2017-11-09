@@ -24,7 +24,7 @@
         "SolutionNamePrefix": {
             "type": "string",
             "maxLength": 11,
-            "defaultValue": "<KLANT>",
+            "defaultValue": "KLANT",
             "metadata": {
                 "description": "Customername is prefix for all resources."
             }
