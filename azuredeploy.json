@@ -58,8 +58,9 @@
         "iotHubd2cPartitionCount": 4,
         "iotHubd2cMessageRetentionInDaysPeriod": 1,
         "iotHubcapacityUnits": 1,
-        "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]",
-        "DataLakeAccountPostfix": "pdmdatalakestore001"
+        "DataLakeAccountPostfix": "pdmdatalakestore001",
+        "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]"
+        
     },
     "resources": [
         {
