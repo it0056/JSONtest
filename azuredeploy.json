@@ -29,7 +29,7 @@
                 "description": "Customername is prefix for all resources."
             }
         },      
-        "iotHubskuName": {
+        "iotHubSkuName": {
             "type": "string",
             "allowedValues": [
                 "F1",
@@ -49,7 +49,6 @@
         "iotHubName":"[concat(parameters('SolutionNamePrefix'),variables('iotHubNamePostFix'))]",
         "iotHubapiVersion": "2016-02-03",
         "iotHubd2cConsumerGroupName1": "devicedata",
-        "iotHubd2cConsumerGroupName2": "timeseriesinsight",
         "iotHubc2dFeedbackMessagesLockDurationAsIso8601": "PT60S",
         "iotHubc2dFeedbackMessagesMaxDeliveryCount": 10,
         "iotHubc2dFeebackMessagesTTLAsIso8601": "PT1H",
@@ -59,14 +58,15 @@
         "iotHubd2cMessageRetentionInDaysPeriod": 1,
         "iotHubcapacityUnits": 1,
         "DataLakeAccountPostfix": "pdmdatalakestore001",
-        "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]"
+        "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]",
+        "StreamAnalyticsJobName": ""
         
     },
     "resources": [
         {
             "type": "Microsoft.Devices/IotHubs",
             "sku": {
-                "name": "[parameters('iotHubskuName')]",
+                "name": "[parameters('iotHubSkuName')]",
                 "capacity": "[variables('iotHubcapacityUnits')]"
             },
             "apiVersion": "2016-02-03",
@@ -102,14 +102,6 @@
 
         },
         {
-            "apiVersion": "2017-01-19",
-            "dependsOn": [
-          "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
-            ],
-            "name": "[concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName2'))]",
-            "type": "Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups"
-        },
-        {
             "type": "Microsoft.DataLakeStore/accounts",
             "name": "[variables('DataLakeAccountName')]",
             "location": "[parameters('DataLakeLocation')]",
@@ -118,7 +110,57 @@
                 "newTier": "Consumption",
                 "encryptionState": "Disabled"
             }
-        }
+        },
+        {
+            "apiVersion": "2016-03-01",
+            "name": "[variables('streamAnalyticsJobName')]",
+            "location": "[variables('location')]",
+            "type": "Microsoft.StreamAnalytics/StreamingJobs",
+            "dependsOn": [
+              "[concat('Microsoft.Devices/IotHubs/', variables('iotHubName'))]"
+            ],
+            "properties": {
+              "sku": {
+                "name": "standard"
+              },
+              "outputErrorPolicy": "stop",
+              "eventsOutOfOrderPolicy": "adjust",
+              "eventsOutOfOrderMaxDelayInSeconds": 0,
+              "eventsLateArrivalMaxDelayInSeconds": 5,
+              "dataLocale": "en-US",
+              "inputs": [
+                {
+                  "Name": "iothub001",
+                  "Properties": {
+                    "DataSource": {
+                      "Properties": {
+                        "iotHubNamespace": "[variables('iotHubName')]",
+                        "consumerGroupName": "[variables('iotHubd2cConsumerGroupName1')]", 
+                        "sharedAccessPolicyKey": "[listkeys(resourceId('Microsoft.Devices/IotHubs/IotHubKeys',variables('iotHubName'), 'iothubowner'),'2016-02-03').primaryKey]",
+                        "sharedAccessPolicyName": "iothubowner",
+                        "endpoint": "messages/events"
+                      },
+                      "Type": "Microsoft.Devices/IotHubs"
+                    },
+                    "Serialization": {
+                      "Properties": {
+                        "Encoding": "UTF8"
+                      },
+                      "Type": "Json"
+                    },
+                    "Type": "Stream"
+                  }
+                }
+              ],
+              "transformation": {
+                "name": "Transformation",
+                "properties": {
+                  "streamingUnits": 1,
+                  "query": "SELECT\r\n    *\r\nINTO\r\n    [PBI]\r\nFROM\r\n    [IoTHub]"
+                }
+              }
+            }
+          }
     ],
     "outputs": {
         "iotHubKeys": {
