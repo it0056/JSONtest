@@ -1,123 +1,95 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.1",
     "parameters": {
-        "solutionNamePrefix": {
+        "SolutionNamePrefix": {
             "type": "string",
             "maxLength": 11,
             "defaultValue": "klantnaam",
             "metadata": {
-              "description": "The value to use for starting the storage account name. Use only lowercase letters and numbers."
+                "description": "Klantnaam is prefix voor alle onderdelen."
             }
-          }
-        },
+        },      
+        "iotHubskuName": {
+            "type": "string",
+            "allowedValues": [
+                "F1",
+                "S1",
+                "S2"
+            ],
+            "defaultValue": "S1",
+            "metadata": {
+                "description": "One of the supported SKUs: F1, S1 or S2"
+            }
+        }
+                  
+    },
     "variables": {
-        "DataLakeStoreName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeStorePostfix'))]",
-        "IotHubName": "[concat(parameters('solutionNamePrefix'),variables('IotHubPostfix'))]",
-        "DataLakeStorePostfix": "pdmdatalakestore001",
-        "IotHubPostfix": "-PdM-IoTHub-001",
-        "IotHubPostfixMon": "-operationmonitoring"
-      },
+        "location": "[resourceGroup().location]",
+        "iotHubNamePostFix": "-PdM-IoTHub-001",
+        "iotHubName":"[concat(parameters('SolutionNamePrefix'),variables('iotHubNamePostFix'))]",
+        "iotHubapiVersion": "2016-02-03",
+        "iotHubd2cConsumerGroupName1": "devicedata",
+        "iotHubd2cConsumerGroupName2": "timeseriesinsight",
+        "iotHubc2dFeedbackMessagesLockDurationAsIso8601": "PT60S",
+        "iotHubc2dFeedbackMessagesMaxDeliveryCount": 10,
+        "iotHubc2dFeebackMessagesTTLAsIso8601": "PT1H",
+        "iotHubc2dMessagesMaxDeliveryCount": 10,
+        "iotHubc2dMessagesTTLAsIso8601": "PT1H",
+        "iotHubd2cPartitionCount": 4,
+        "iotHubd2cMessageRetentionInDaysPeriod": 1,
+        "iotHubcapacityUnits": 1
+    },
     "resources": [
         {
-            "type": "Microsoft.DataLakeStore/accounts",
-            "name": "[variables('DataLakeStoreName')]",
-            "apiVersion": "2016-11-01",
-            "location": "northeurope",
-            "scale": null,
-            "properties": {},
-            "dependsOn": [
-                "[variables('IotHubName')]"
-            ]
-        },
-        {
-            "type": "Microsoft.Devices/IotHubs",
-            "sku": {
-                "name": "S1",
-                "tier": "Standard",
-                "capacity": 1
-            },
-            "name": "[variables('IotHubName')]",
             "apiVersion": "2016-02-03",
-            "location": "westeurope",
-            "tags": {},
-            "scale": null,
+            "location": "[variables('location')]",
+            "name": "[variables('iotHubName')]",
             "properties": {
-                "operationsMonitoringProperties": {
-                    "events": {
-                        "None": "None",
-                        "Connections": "None",
-                        "DeviceTelemetry": "None",
-                        "C2DCommands": "None",
-                        "DeviceIdentityOperations": "None",
-                        "FileUploadOperations": "None",
-                        "Routes": "None"
-                    }
-                },
-                "ipFilterRules": [],
                 "eventHubEndpoints": {
                     "events": {
-                        "retentionTimeInDays": 1,
-                        "partitionCount": 4,
-                        "partitionIds": [
-                            "0",
-                            "1",
-                            "2",
-                            "3"
-                        ],
-                        "path": "[concat(variables('IotHubName'),toLower(variables('IotHubName')), variables('IotHubName'))]",
-                        "endpoint": []
-                    },
-                    "operationsMonitoringEvents": {
-                        "retentionTimeInDays": 1,
-                        "partitionCount": 4,
-                        "partitionIds": [
-                            "0",
-                            "1",
-                            "2",
-                            "3"
-                        ],
-                        "path": "[concat(variables('IotHubName'),toLower(variables('IotHubName')),variables('IotHubPostfixMon'))]",
-                        "endpoint": []
+                        "retentionTimeInDays": "[variables('iotHubd2cMessageRetentionInDaysPeriod')]",
+                        "partitionCount": "[variables('iotHubd2cPartitionCount')]"
                     }
                 },
-                "routing": {
-                    "endpoints": {
-                        "serviceBusQueues": [],
-                        "serviceBusTopics": [],
-                        "eventHubs": []
-                    },
-                    "routes": [],
-                    "fallbackRoute": {
-                        "name": "$fallback",
-                        "source": "DeviceMessages",
-                        "condition": "true",
-                        "endpointNames": [
-                            "events"
-                        ],
-                        "isEnabled": true
-                    }
-                },
-                "storageEndpoints": {
-                    "$default": {
-                        "sasTtlAsIso8601": "PT1H",
-                        "connectionString": "",
-                        "containerName": ""
-                    }
-                },
-                "enableFileUploadNotifications": false,
                 "cloudToDevice": {
-                    "maxDeliveryCount": 10,
-                    "defaultTtlAsIso8601": "PT1H",
+                    "defaultTtlAsIso8601": "[variables('iotHubc2dMessagesTTLAsIso8601')]",
+                    "maxDeliveryCount": "[variables('iotHubc2dMessagesMaxDeliveryCount')]",
                     "feedback": {
-                        "lockDurationAsIso8601": "PT1M",
-                        "ttlAsIso8601": "PT1H",
-                        "maxDeliveryCount": 10
+                        "maxDeliveryCount": "[variables('iotHubc2dFeedbackMessagesMaxDeliveryCount')]",
+                        "ttlAsIso8601": "[variables('iotHubc2dFeebackMessagesTTLAsIso8601')]",
+                        "lockDurationAsIso8601": "[variables('iotHubc2dFeedbackMessagesLockDurationAsIso8601')]"
                     }
-                },
-                "features": "None"
+                 },
+                "location": "[resourceGroup().location]"
             },
-            "dependsOn": []
-        }
-    ]
-}
+             "sku": {
+                "name": "[variables('iotHubskuName')]",
+                "capacity": "[variables('iotHubcapacityUnits')]"
+            },
+            "type": "Microsoft.Devices/iotHubs"
+        },
+    {
+        "apiVersion": "2016-02-03",
+        "dependsOn": [
+          "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
+        ],
+        "name": "[concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName1'))]",
+        "type": "Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups"
+    },
+    {
+        "apiVersion": "2016-02-03",
+        "dependsOn": [
+          "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
+        ],
+        "name": "[concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName2'))]",
+        "type": "Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups"
+    }
+    ],
+    "outputs": {
+      "iotHubKeys": {
+        "value": "[listKeys(resourceId('Microsoft.Devices/iotHubs', parameters('iotHubName')), variables('apiVersion'))]",
+        "type": "object"
+      }
+    }
+  }
