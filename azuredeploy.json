@@ -45,8 +45,8 @@
     },
     "variables": {
         "location": "[resourceGroup().location]",
-        "iotHubNamePostFix": "-PdM-IoTHub-001",
-        "iotHubName":"[concat(parameters('SolutionNamePrefix'),variables('iotHubNamePostFix'))]",
+        "iotHubNamePostfix": "-PdM-IoTHub-001",
+        "iotHubName": "[concat(parameters('SolutionNamePrefix'),variables('iotHubNamePostfix'))]",
         "iotHubapiVersion": "2016-02-03",
         "iotHubd2cConsumerGroupName1": "devicedata",
         "iotHubc2dFeedbackMessagesLockDurationAsIso8601": "PT60S",
@@ -58,8 +58,9 @@
         "iotHubd2cMessageRetentionInDaysPeriod": 1,
         "iotHubcapacityUnits": 1,
         "DataLakeAccountPostfix": "pdmdatalakestore001",
-        "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]"
-        
+        "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]",
+        "StreamAnalyticsJobNamePostfix": "-PdM-Streaming-001",
+        "StreamAnalyticsJobName": "[concat(parameters('SolutionNamePrefix'),variables('StreamAnalyticsJobNamePostfix'))]"
     },
     "resources": [
         {
@@ -108,6 +109,30 @@
             "properties": {
                 "newTier": "Consumption",
                 "encryptionState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.StreamAnalytics/StreamingJobs",
+            "apiVersion": "2016-03-01",
+            "name": "[variables('DataLakeAccountName')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "sku": {
+                    "name": "standard"
+                },
+                "outputErrorPolicy": "stop",           
+                "eventsOutOfOrderPolicy": "adjust",
+                "eventsOutOfOrderMaxDelayInSeconds": 0,
+                "eventsLateArrivalMaxDelayInSeconds": 5,
+                "dataLocale": "en-US",
+                "inputs": [],
+                "transformation": {
+                    "name": "Transformation",
+                    "properties": {            
+                        "streamingUnits": "[parameters('numberOfStreamingUnits')]",
+                        "query": "SELECT\r\n    *\r\nINTO\r\n    [YourOutputAlias]\r\nFROM\r\n    [YourInputAlias]"
+                    }
+                }
             }
         }
     ],
