@@ -42,6 +42,11 @@
     },
     "resources": [
         {
+            "type": "Microsoft.Devices/IotHubs",
+            "sku": {
+                "name": "[variables('iotHubskuName')]",
+                "capacity": "[variables('iotHubcapacityUnits')]"
+            },
             "apiVersion": "2016-02-03",
             "location": "[variables('location')]",
             "name": "[variables('iotHubName')]",
@@ -60,36 +65,33 @@
                         "ttlAsIso8601": "[variables('iotHubc2dFeebackMessagesTTLAsIso8601')]",
                         "lockDurationAsIso8601": "[variables('iotHubc2dFeedbackMessagesLockDurationAsIso8601')]"
                     }
-                 },
-                "location": "[resourceGroup().location]"
-            },
-             "sku": {
-                "name": "[variables('iotHubskuName')]",
-                "capacity": "[variables('iotHubcapacityUnits')]"
-            },
-            "type": "Microsoft.Devices/iotHubs"
+                 }
+            
+            }
+        
         },
-    {
-        "apiVersion": "2016-02-03",
-        "dependsOn": [
+        {
+            "type": "Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups",
+            "name": "[concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName1'))]",
+            "apiVersion": "2017-01-19",
+            "dependsOn": [
+                "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
+            ],
+
+        },
+        {
+            "apiVersion": "2017-01-19",
+            "dependsOn": [
           "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
-        ],
-        "name": "[concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName1'))]",
-        "type": "Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups"
-    },
-    {
-        "apiVersion": "2016-02-03",
-        "dependsOn": [
-          "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
-        ],
-        "name": "[concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName2'))]",
-        "type": "Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups"
-    }
+            ],
+            "name": "[concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName2'))]",
+            "type": "Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups"
+        }
     ],
     "outputs": {
-      "iotHubKeys": {
-        "value": "[listKeys(resourceId('Microsoft.Devices/iotHubs', parameters('iotHubName')), variables('apiVersion'))]",
-        "type": "object"
-      }
+        "iotHubKeys": {
+            "value": "[listKeys(resourceId('Microsoft.Devices/iotHubs', variables('iotHubName')), variables('apiVersion'))]",
+            "type": "object"
+        }
     }
-  }
+}
