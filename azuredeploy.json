@@ -16,18 +16,6 @@
             "metadata": {
                 "description": "Azure Region."
             }
-        },
-        "DataLakeLocation": {
-            "type": "string",
-            "allowedValues": [
-                "East US 2",
-                "Central US",
-                "North Europe"
-            ],
-            "defaultValue": "North Europe",
-            "metadata": {
-                "description": "The location in which to create the Data Lake Store account."
-            }
         },   
         "iotHubSkuName": {
             "type": "string",
@@ -39,6 +27,18 @@
             "defaultValue": "S1",
             "metadata": {
                 "description": "One of the supported SKUs: F1, S1 or S2"
+            }
+        },
+        "DataLakeLocation": {
+            "type": "string",
+            "allowedValues": [
+                "East US 2",
+                "Central US",
+                "North Europe"
+            ],
+            "defaultValue": "North Europe",
+            "metadata": {
+                "description": "The location in which to create the Data Lake Store account."
             }
         }
                   
