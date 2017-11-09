@@ -60,7 +60,8 @@
         "DataLakeAccountPostfix": "pdmdatalakestore001",
         "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]",
         "StreamAnalyticsJobNamePostfix": "-PdM-Streaming-001",
-        "StreamAnalyticsJobName": "[concat(parameters('SolutionNamePrefix'),variables('StreamAnalyticsJobNamePostfix'))]"
+        "StreamAnalyticsJobName": "[concat(parameters('SolutionNamePrefix'),variables('StreamAnalyticsJobNamePostfix'))]",
+        "StreamAnalyticsJobStreamingUnits": 1
     },
     "resources": [
         {
@@ -114,7 +115,7 @@
         {
             "type": "Microsoft.StreamAnalytics/StreamingJobs",
             "apiVersion": "2016-03-01",
-            "name": "[variables('DataLakeAccountName')]",
+            "name": "[variables('StreamAnalyticsJobName')]",
             "location": "[variables('location')]",
             "properties": {
                 "sku": {
@@ -129,7 +130,7 @@
                 "transformation": {
                     "name": "Transformation",
                     "properties": {            
-                        "streamingUnits": "[parameters('numberOfStreamingUnits')]",
+                        "streamingUnits": "[variables('StreamAnalyticsJobStreamingUnits')]",
                         "query": "SELECT\r\n    *\r\nINTO\r\n    [YourOutputAlias]\r\nFROM\r\n    [YourInputAlias]"
                     }
                 }
