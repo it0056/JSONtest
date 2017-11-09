@@ -2,6 +2,14 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.1",
     "parameters": {
+        "SolutionNamePrefix": {
+            "type": "string",
+            "maxLength": 11,
+            "defaultValue": "KLANT",
+            "metadata": {
+                "description": "Customername is prefix for all resources."
+            }
+        },
         "siteLocation": {
             "type": "string",
             "defaultValue": "West Europe",
@@ -20,15 +28,7 @@
             "metadata": {
                 "description": "The location in which to create the Data Lake Store account."
             }
-        },
-        "SolutionNamePrefix": {
-            "type": "string",
-            "maxLength": 11,
-            "defaultValue": "KLANT",
-            "metadata": {
-                "description": "Customername is prefix for all resources."
-            }
-        },      
+        },   
         "iotHubSkuName": {
             "type": "string",
             "allowedValues": [
@@ -49,7 +49,6 @@
         "iotHubName":"[concat(parameters('SolutionNamePrefix'),variables('iotHubNamePostFix'))]",
         "iotHubapiVersion": "2016-02-03",
         "iotHubd2cConsumerGroupName1": "devicedata",
-        "iotHubd2cConsumerGroupName2": "timeseriesinsight",
         "iotHubc2dFeedbackMessagesLockDurationAsIso8601": "PT60S",
         "iotHubc2dFeedbackMessagesMaxDeliveryCount": 10,
         "iotHubc2dFeebackMessagesTTLAsIso8601": "PT1H",
@@ -100,14 +99,6 @@
                 "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
             ],
 
-        },
-        {
-            "apiVersion": "2017-01-19",
-            "dependsOn": [
-          "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
-            ],
-            "name": "[concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName2'))]",
-            "type": "Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups"
         },
         {
             "type": "Microsoft.DataLakeStore/accounts",
