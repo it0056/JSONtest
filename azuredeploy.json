@@ -162,7 +162,7 @@
                     "name": "Transformation",
                     "properties": {            
                         "streamingUnits": "[variables('StreamAnalyticsJobStreamingUnits')]",
-                        "query": "[concat('SELECT *\r\nINTO \"' , variables('StreamAnalyticsOutputName') , '\"\r\nFROM ' , variables('StreamAnalyticsInputName') , ' partition by PartitionId\r\nWHERE deviceId = '' , variables('iotHubdeviceId') , ''')]"
+                        "query": "[concat('SELECT *\r\nINTO \"' , variables('StreamAnalyticsOutputName') , '\"\r\nFROM ' , variables('StreamAnalyticsInputName') , ' partition by PartitionId\r\nWHERE deviceId = \"' , variables('iotHubdeviceId') , '\"')]"
                     }
                 },
                 "outputs": [
