@@ -57,6 +57,8 @@
         "iotHubd2cPartitionCount": 4,
         "iotHubd2cMessageRetentionInDaysPeriod": 1,
         "iotHubcapacityUnits": 1,
+        "iotHubdeviceIdPostfix": "-IoTEdge-001",
+        "iotHubdeviceId": "[concat(parameters('SolutionNamePrefix'),variables('iotHubdeviceIdPostfix'))]",
         "DataLakeAccountPostfix": "pdmdatalakestore001",
         "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]",
         "StreamAnalyticsJobNamePostfix": "-PdM-Streaming-001",
@@ -160,7 +162,7 @@
                     "name": "Transformation",
                     "properties": {            
                         "streamingUnits": "[variables('StreamAnalyticsJobStreamingUnits')]",
-                        "query": "SELECT\r\n    *\r\nINTO\r\n    [YourOutputAlias]\r\nFROM\r\n    [YourInputAlias]"
+                        "query": "SELECT *\r\nINTO [variables('StreamAnalyticsOutputName')]\r\nFROM [variables('StreamAnalyticsInputName')] partition by PartitionId\r\nWHERE deviceId = [variables('iotHubdeviceId')]"
                     }
                 },
                 "outputs": [
