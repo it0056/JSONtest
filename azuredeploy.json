@@ -163,7 +163,7 @@
                     "name": "Transformation",
                     "properties": {            
                         "streamingUnits": "[variables('StreamAnalyticsJobStreamingUnits')]",
-                        "query": "SELECT *\r\nINTO ('SQLStreamAnalyticsOutputName')\r\nFROM ('SQLStreamAnalyticsInputName') partition by PartitionId\r\nWHERE deviceId = ('SQLiotHubdeviceId')"
+                        "query": "[concat('SELECT *\r\nINTO ' , variables('StreamAnalyticsOutputName') , '\r\nFROM ' , variables('StreamAnalyticsInputName') , ' partition by PartitionId\r\nWHERE deviceId = ' , variables('iotHubdeviceId'))]"
                     }
                 },
                 "outputs": [
@@ -199,18 +199,6 @@
         },
         "SharedAccessPolicyKey": {
             "value": "[listkeys(resourceId('Microsoft.Devices/IotHubs/IotHubKeys',variables('iotHubName'), 'iothubowner'),variables('iotHubapiVersion')).primaryKey]",
-            "type": "string"
-        },
-        "SQLStreamAnalyticsOutputName":{
-            "value": "[variables('StreamAnalyticsOutputName')]",
-            "type": "string"
-        },
-        "SQLStreamAnalyticsInputName":{
-            "value": "[variables('StreamAnalyticsInputName')]",
-            "type": "string"
-        },
-        "SQLiotHubdeviceId":{
-            "value": "[variables('iotHubdeviceId')]",
             "type": "string"
         }
       
