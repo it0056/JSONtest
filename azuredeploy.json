@@ -62,7 +62,8 @@
         "StreamAnalyticsJobNamePostfix": "-PdM-Streaming-001",
         "StreamAnalyticsJobName": "[concat(parameters('SolutionNamePrefix'),variables('StreamAnalyticsJobNamePostfix'))]",
         "StreamAnalyticsJobStreamingUnits": 1,
-        "StreamAnalyticsInputName": "iothub001"
+        "StreamAnalyticsInputName": "iothub001",
+        "StreamAnalyticsOutputName": "datalake001-edge"
     },
     "resources": [
         {
@@ -161,7 +162,30 @@
                         "streamingUnits": "[variables('StreamAnalyticsJobStreamingUnits')]",
                         "query": "SELECT\r\n    *\r\nINTO\r\n    [YourOutputAlias]\r\nFROM\r\n    [YourInputAlias]"
                     }
-                }
+                },
+                "outputs": [
+                    {
+                        "name": "[variables('StreamAnalyticsOutputName')]",
+                        "properties":{
+                            "datasource": {
+                                "type": "Microsoft.DataLake/Accounts",
+                                "properties": {
+                                    "accountName": "[variables('DataLakeAccountName')]",
+                                    "filePathPrefix": "edge/{date}",
+                                    "refreshToken": "Dummytoken",
+                                    "tenantId": "47867ef0-1601-4bd3-9bec-8c1ae3c76e05"
+                                }
+                            },
+                            "serialization":{
+                                "type": "Json",
+                                "properties": {
+                                    "encoding":"UTF8",
+                                    "format":"LineSeparated"
+                                }
+                            }
+                        }
+                    }
+                ]
             }
         }
     ],
