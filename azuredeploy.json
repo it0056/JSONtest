@@ -122,7 +122,7 @@
             "name": "[variables('StreamAnalyticsJobName')]",
             "location": "[variables('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups/', [concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName1'))])]",
+                "[concat('Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups/', variables('iotHubd2cConsumerGroupName1'))]",
                 "[concat('Microsoft.DataLakeStore/accounts/', variables('DataLakeAccountName'))]",
                 "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
             ],
