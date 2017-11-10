@@ -61,7 +61,8 @@
         "DataLakeAccountName": "[concat(toLower(parameters('solutionNamePrefix')),variables('DataLakeAccountPostfix'))]",
         "StreamAnalyticsJobNamePostfix": "-PdM-Streaming-001",
         "StreamAnalyticsJobName": "[concat(parameters('SolutionNamePrefix'),variables('StreamAnalyticsJobNamePostfix'))]",
-        "StreamAnalyticsJobStreamingUnits": 1
+        "StreamAnalyticsJobStreamingUnits": 1,
+        "StreamAnalyticsInputName": "iothub001"
     },
     "resources": [
         {
@@ -117,6 +118,10 @@
             "apiVersion": "2016-03-01",
             "name": "[variables('StreamAnalyticsJobName')]",
             "location": "[variables('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]",
+                "[concat('Microsoft.DataLakeStore/accounts/', variables('DataLakeAccountName'))]"
+            ],
             "properties": {
                 "sku": {
                     "name": "standard"
@@ -126,7 +131,30 @@
                 "eventsOutOfOrderMaxDelayInSeconds": 0,
                 "eventsLateArrivalMaxDelayInSeconds": 5,
                 "dataLocale": "en-US",
-                "inputs": [],
+                "inputs": [
+                    {
+                        "Name": "[variables('StreamAnalyticsInputName')]",
+                        "Properties": {
+                            "DataSource": {
+                                "Type": "Microsoft.Devices/IotHubs",                                
+                                "Properties": {
+                                    "iotHubNamespace": "[variables('iotHubName')]",
+                                    "sharedAccessPolicyKey": "[listkeys(resourceId('Microsoft.Devices/IotHubs/IotHubKeys',variables('iotHubName'), 'iothubowner'),variables('iotHubapiVersion')).primaryKey]",
+                                    "sharedAccessPolicyName": "iothubowner",
+                                    "consumerGroupName": "[variables('iotHubd2cConsumerGroupName1')]",
+                                    "endpoint": "messages/events"
+                                }
+                            },
+                            "Serialization": {
+                                "Type": "Json",
+                                "Properties": {
+                                    "Encoding": "UTF8"
+                                }
+                            },
+                            "Type": "Stream"
+                        }
+                    }
+                ],
                 "transformation": {
                     "name": "Transformation",
                     "properties": {            
@@ -138,9 +166,15 @@
         }
     ],
     "outputs": {
-        "iotHubKeys": {
-            "value": "[listKeys(resourceId('Microsoft.Devices/iotHubs', variables('iotHubName')), variables('iotHubapiVersion'))]",
+        "iotHub": {
+            "value": "[reference(resourceId('Microsoft.Devices/iotHubs', variables('iotHubName')), variables('iotHubapiVersion'))]",
             "type": "object"
+        },
+        "SharedAccessPolicyKey": {
+            "value": "[listkeys(resourceId('Microsoft.Devices/IotHubs/IotHubKeys',variables('iotHubName'), 'iothubowner'),variables('iotHubapiVersion')).primaryKey]",
+            "type": "string"
         }
+      
     }
+
 }
