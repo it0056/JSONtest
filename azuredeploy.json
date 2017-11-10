@@ -122,12 +122,13 @@
             "name": "[variables('StreamAnalyticsJobName')]",
             "location": "[variables('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]",
-                "[concat('Microsoft.DataLakeStore/accounts/', variables('DataLakeAccountName'))]"
+                "[concat('Microsoft.Devices/iotHubs/eventhubEndpoints/ConsumerGroups/', [concat(variables('iotHubName'), '/events/',variables('iotHubd2cConsumerGroupName1'))])]",
+                "[concat('Microsoft.DataLakeStore/accounts/', variables('DataLakeAccountName'))]",
+                "[concat('Microsoft.Devices/iothubs/', variables('iotHubName'))]"
             ],
             "properties": {
                 "sku": {
-                    "name": "standard"
+                    "name": "Standard"
                 },
                 "outputErrorPolicy": "stop",           
                 "eventsOutOfOrderPolicy": "adjust",
@@ -162,7 +163,7 @@
                     "name": "Transformation",
                     "properties": {            
                         "streamingUnits": "[variables('StreamAnalyticsJobStreamingUnits')]",
-                        "query": "SELECT *\r\nINTO [SQLStreamAnalyticsOutputName]\r\nFROM [SQLStreamAnalyticsInputName] partition by PartitionId\r\nWHERE deviceId = [SQLiotHubdeviceId]"
+                        "query": "SELECT *\r\nINTO ('SQLStreamAnalyticsOutputName')\r\nFROM ('SQLStreamAnalyticsInputName') partition by PartitionId\r\nWHERE deviceId = ('SQLiotHubdeviceId')"
                     }
                 },
                 "outputs": [
